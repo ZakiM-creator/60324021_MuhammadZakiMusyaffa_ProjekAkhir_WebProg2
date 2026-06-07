@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateBukuRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        // Get buku ID from route parameter
+        $bukuId = $this->route('buku');
+
+        return [
+            'kode_buku' => [
+                'required',
+                'string',
+                'max:20',
+                'unique:buku,kode_buku,' . $bukuId,
+                new \App\Rules\KodeBukuFormat()
+            ],
+            'judul' => 'required|string|max:200',
+            'kategori' => 'required|in:Programming,Database,Web Design,Networking,Data Science',
+            'pengarang' => 'required|string|max:100',
+            'penerbit' => 'required|string|max:100',
+            'tahun_terbit' => 'required|integer|min:1900|max:' . date('Y'),
+            'isbn' => 'nullable|string|max:20',
+            'harga' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0',
+            'deskripsi' => 'nullable|string',
+            'bahasa' => 'required|string|max:20',
+        ];
+    }
+
+    /**
+     * Configure the validator instance for conditional validations.
+     */
+    public function withValidator($validator)
+    {
+        $validator->sometimes('bahasa', 'in:Inggris', function ($input) {
+            return $input->kategori === 'Programming';
+        });
+
+        $validator->sometimes('stok', 'max:5', function ($input) {
+            return (int)$input->tahun_terbit < 2000;
+        });
+    }
+
+    /**
+     * Get custom error messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'kode_buku.required' => 'Kode buku wajib diisi.',
+            'kode_buku.unique' => 'Kode buku sudah digunakan.',
+            'kode_buku.max' => 'Kode buku maksimal 20 karakter.',
+            'judul.required' => 'Judul buku wajib diisi.',
+            'judul.max' => 'Judul buku maksimal 200 karakter.',
+            'kategori.required' => 'Kategori wajib dipilih.',
+            'kategori.in' => 'Kategori tidak valid.',
+            'pengarang.required' => 'Nama pengarang wajib diisi.',
+            'penerbit.required' => 'Nama penerbit wajib diisi.',
+            'tahun_terbit.required' => 'Tahun terbit wajib diisi.',
+            'tahun_terbit.integer' => 'Tahun terbit harus berupa angka.',
+            'tahun_terbit.min' => 'Tahun terbit tidak valid.',
+            'tahun_terbit.max' => 'Tahun terbit tidak boleh melebihi tahun sekarang.',
+            'isbn.max' => 'ISBN maksimal 20 karakter.',
+            'harga.required' => 'Harga buku wajib diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'harga.min' => 'Harga tidak boleh negatif.',
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.integer' => 'Stok harus berupa angka bulat.',
+            'stok.min' => 'Stok tidak boleh negatif.',
+            'bahasa.required' => 'Bahasa wajib diisi.',
+            'bahasa.in' => 'Jika kategori adalah Programming, bahasa harus Inggris.',
+            'stok.max' => 'Jika tahun terbit di bawah 2000, stok maksimal adalah 5.',
+        ];
+    }
+}

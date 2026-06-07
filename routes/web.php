@@ -1,9 +1,10 @@
-<?php
+`<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\DashboardController;
+
 
 
 Route::get('/', function () {
@@ -24,12 +25,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Route untuk search & filter buku (harus SEBELUM resource route)
 Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
 
-// Custom route untuk filter kategori (harus SEBELUM resource route)
-Route::get('/buku/kategori/{kategori}', [BukuController::class, 'filterKategori'])->name('buku.kategori');
+Route::post('/buku/bulk-delete', [BukuController::class, 'bulkDelete'])->name('buku.bulk-delete');
 
-// Resource route untuk Buku
-Route::resource('buku', BukuController::class);
-
+// Route untuk export data buku ke CSV (harus SEBELUM resource route)
+Route::get('/buku/export', [BukuController::class, 'export'])->name('buku.export');
 
 // Resource route untuk Buku
 Route::resource('buku', BukuController::class);

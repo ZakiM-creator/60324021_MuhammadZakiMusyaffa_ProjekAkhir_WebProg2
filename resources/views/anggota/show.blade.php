@@ -124,10 +124,10 @@
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
                 <hr>
-                <form action="{{ route('anggota.destroy', $anggota->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus?')">
+                <form action="{{ route('anggota.destroy', $anggota->id) }}" method="POST">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger w-100">
+                    <button type="button" class="btn btn-danger w-100 btn-delete-confirm" data-confirm="Anggota '{{ $anggota->nama }}' akan dihapus secara permanen dari sistem!">
                         <i class="bi bi-trash"></i> Hapus Anggota
                     </button>
                 </form>
