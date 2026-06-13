@@ -1,4 +1,4 @@
-`<?php
+<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BukuController;
@@ -32,6 +32,12 @@ Route::get('/buku/export', [BukuController::class, 'export'])->name('buku.export
 
 // Resource route untuk Buku
 Route::resource('buku', BukuController::class);
+
+// Export Excel untuk Anggota (harus sebelum resource route)
+Route::get('/anggota/export', [AnggotaController::class, 'export'])->name('anggota.export');
+
+// Search & Filter Anggota (harus sebelum resource route)
+Route::get('/anggota/search', [AnggotaController::class, 'search'])->name('anggota.search');
 
 // Resource route untuk Anggota
 Route::resource('anggota', AnggotaController::class);
