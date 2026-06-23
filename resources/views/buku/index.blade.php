@@ -300,12 +300,11 @@
             </div>
 
             <div class="col-md-6">
-                <!-- <h5 class="card-title">
-                    <a href="{{ route('buku.show', $buku->id) }}" class="text-decoration-none">
+                <h5 class="card-title">
+                    <a href="{{ route('buku.show', $buku->id) }}" class="text-decoration-none fw-bold text-dark">
                         {{ $buku->judul }}
                     </a>
-                </h5> -->
-                <x-buku-card :buku="$buku" :show-actions="false" />
+                </h5>
 
                 <p class="card-text text-muted mb-2">
                     <i class="bi bi-person"></i> {{ $buku->pengarang }} |
