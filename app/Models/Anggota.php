@@ -59,8 +59,11 @@ class Anggota extends Model
      */
     public function getLamaAnggotaAttribute(): int
     {
-        return Carbon::parse($this->tanggal_daftar)->diffInDays(now());
+        return  (int) floor(
+        Carbon::parse($this->tanggal_daftar)->diffInDays(now())
+        );
     }
+
 
     public function getStatusBadgeAttribute(): string
     {
@@ -99,9 +102,15 @@ class Anggota extends Model
         return $query->where('jenis_kelamin', $jenisKelamin);
     }
 
+
     public function scopeTerdaftarBulanIni($query)
     {
         return $query->whereMonth('tanggal_daftar', now()->month)
             ->whereYear('tanggal_daftar', now()->year);
+    }
+
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class);
     }
 }

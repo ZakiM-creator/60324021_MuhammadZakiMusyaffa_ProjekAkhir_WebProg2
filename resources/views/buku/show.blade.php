@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', $buku->judul)
-
-@section('content')
+<x-app-layout theme="bootstrap" :title="$buku->judul">
 <div class="row">
     {{-- Breadcrumb --}}
     <div class="col-12 mb-3">
@@ -174,34 +170,6 @@
 
                 @push('scripts')
                 <script>
-                    // SweetAlert confirmation untuk delete
-                    document.querySelectorAll('.btn-delete').forEach(button => {
-                        button.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const form = this.closest('form');
-                            const judul = this.getAttribute('data-judul');
-
-                            Swal.fire({
-                                title: 'Konfirmasi Hapus',
-                                text: `Apakah Anda yakin ingin menghapus buku "${judul}"?`,
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#d33',
-                                cancelButtonColor: '#3085d6',
-                                confirmButtonText: 'Ya, Hapus!',
-                                cancelButtonText: 'Batal'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    form.submit();
-                                }
-                            });
-                        });
-                    });
-                </script>
-                @endpush
-
-                @push('scripts')
-                <script>
                     // Loading state saat submit form
                     document.querySelectorAll('form').forEach(form => {
                         form.addEventListener('submit', function() {
@@ -282,4 +250,4 @@
     </div>
 </div>
 </div>
-@endsection
+</x-app-layout>

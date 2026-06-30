@@ -7,6 +7,18 @@ use Illuminate\View\View;
 
 class AppLayout extends Component
 {
+    public $theme;
+    public $title;
+
+    /**
+     * Create a new component instance.
+     */
+    public function __construct($theme = 'tailwind', $title = null)
+    {
+        $this->theme = $theme;
+        $this->title = $title;
+    }
+
     /**
      * Get the view / contents that represents the component.
      */

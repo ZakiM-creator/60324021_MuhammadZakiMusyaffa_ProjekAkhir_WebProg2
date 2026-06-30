@@ -1,12 +1,7 @@
-@extends('layouts.app')
-
-@section('title', 'Tambah Anggota')
-
+<x-app-layout theme="bootstrap" title="Tambah Anggota">
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
-
-@section('content')
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card">
@@ -214,7 +209,7 @@
         </div>
     </div>
 </div>
-@endsection
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -246,3 +241,4 @@
     });
 </script>
 @endpush
+</x-app-layout>

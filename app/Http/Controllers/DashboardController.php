@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\Anggota;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -54,6 +55,17 @@ class DashboardController extends Controller
                                 ->get();
         
         
+        // ========== STATISTIK KETERLAMBATAN ==========
+        
+        // Transaksi berstatus 'Pinjam' dan tanggal pinjam > 7 hari yang lalu
+        $transaksiTerlambat = Transaksi::with(['buku', 'anggota'])
+            ->where('status', 'Dipinjam')
+            ->where('tanggal_kembali', '<', now()->toDateString())
+            ->get();
+            
+        $totalTerlambat = $transaksiTerlambat->count();
+        
+        
         // ========== KIRIM DATA KE VIEW ==========
         
         // Menggunakan compact() untuk mengirim semua variabel ke view
@@ -66,7 +78,9 @@ class DashboardController extends Controller
             'anggotaAktif',
             'anggotaNonaktif',
             'bukuTerbaru',
-            'anggotaTerbaru'
+            'anggotaTerbaru',
+            'transaksiTerlambat',
+            'totalTerlambat'
         ));
     }
 }

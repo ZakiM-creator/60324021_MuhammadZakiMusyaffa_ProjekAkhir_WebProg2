@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', $anggota->nama)
-
-@section('content')
+<x-app-layout theme="bootstrap" :title="$anggota->nama">
 <div class="row">
     <div class="col-12 mb-3">
         <nav aria-label="breadcrumb">
@@ -135,4 +131,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

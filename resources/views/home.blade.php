@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+<x-app-layout>
 @section('title', 'Home')
 
 @section('content')
@@ -45,7 +44,7 @@
                     <i class="bi bi-arrow-left-right display-1 text-info"></i>
                     <h5 class="card-title mt-3">Transaksi</h5>
                     <p class="card-text">Peminjaman dan pengembalian buku</p>
-                    <a href="#" class="btn btn-info text-white">
+                    <a href="{{ route('transaksi.index') }}" class="btn btn-info text-white">
                         Transaksi <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>

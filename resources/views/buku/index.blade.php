@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Daftar Buku')
-
-@section('content')
+<x-app-layout theme="bootstrap" title="Daftar Buku">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>
         <i class="bi bi-book"></i>
@@ -257,7 +253,7 @@
         <h5 class="mb-0">
             <i class="bi bi-book-half"></i> Daftar Buku
         </h5>
-        <button type="button" id="bulk-delete-btn" class="btn btn-danger btn-sm" disabled>
+        <button type="button" id="bulk-delete-btn" class="btn btn-danger btn-sm" enabled>
             <i class="bi bi-trash"></i> Hapus Terpilih
         </button>
     </div>
@@ -565,4 +561,4 @@
 </script>
 @endpush
 
-@endsection
+</x-app-layout>

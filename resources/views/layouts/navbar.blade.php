@@ -1,45 +1,35 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
     <div class="container">
-        <a class="navbar-brand" href="{{ url('/') }}">
-            <i class="bi bi-book-fill"></i>
-            Perpustakaan
+        <!-- Logo / Brand -->
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url('/') }}">
+            <i class="bi bi-book-fill me-2 fs-4"></i>
+            <span>Perpustakaan</span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <!-- Hamburger Toggle for Mobile -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Button Navigation links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ url('/') }}">
-                        <i class="bi bi-house-door"></i> Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('buku*') ? 'active' : '' }}" href="{{ route('buku.index') }}">
-                        <i class="bi bi-book"></i> Buku
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('anggota*') ? 'active' : '' }}" href="{{ route('anggota.index') }}">
-                        <i class="bi bi-people"></i> Anggota
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                        href="{{ route('dashboard') }}">
-                        <i class="bi bi-speedometer2 me-1"></i>
-                        Dashboard
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-arrow-left-right"></i> Transaksi
-                    </a>
-                </li>
-            </ul>
+            <div class="navbar-nav ms-auto gap-2 py-2 py-lg-0">
+                <a class="btn {{ request()->routeIs('dashboard') ? 'btn-light text-primary fw-bold' : 'btn-outline-light' }} d-flex align-items-center" href="{{ route('dashboard') }}">
+                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                </a>
+                <a class="btn {{ Request::is('buku*') ? 'btn-light text-primary fw-bold' : 'btn-outline-light' }} d-flex align-items-center" href="{{ route('buku.index') }}">
+                    <i class="bi bi-book me-1"></i> Buku
+                </a>
+                <a class="btn {{ Request::is('anggota*') ? 'btn-light text-primary fw-bold' : 'btn-outline-light' }} d-flex align-items-center" href="{{ route('anggota.index') }}">
+                    <i class="bi bi-people me-1"></i> Anggota
+                </a>
+                <a class="btn {{ Request::is('transaksi*') && !Request::is('transaksi/laporan') ? 'btn-light text-primary fw-bold' : 'btn-outline-light' }} d-flex align-items-center" href="{{ route('transaksi.index') }}">
+                    <i class="bi bi-arrow-left-right me-1"></i> Transaksi
+                </a>
+                <a class="btn {{ Request::is('transaksi/laporan') ? 'btn-light text-primary fw-bold' : 'btn-outline-light' }} d-flex align-items-center" href="{{ route('transaksi.laporan') }}">
+                    <i class="bi bi-file-earmark-bar-graph me-1"></i> Laporan
+                </a>
+            </div>
         </div>
     </div>
 </nav>

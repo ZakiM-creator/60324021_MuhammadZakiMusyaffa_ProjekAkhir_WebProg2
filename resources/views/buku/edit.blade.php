@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Edit Buku')
-
-@section('content')
+<x-app-layout theme="bootstrap" title="Edit Buku">
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card">
@@ -227,4 +223,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

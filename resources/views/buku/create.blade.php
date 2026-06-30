@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Tambah Buku')
-
-@section('content')
+<x-app-layout theme="bootstrap" title="Tambah Buku">
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card">
@@ -27,7 +23,7 @@
                                 id="kode_buku"
                                 class="form-control @error('kode_buku') is-invalid @enderror"
                                 value="{{ old('kode_buku') }}"
-                                placeholder="Contoh: BK-001">
+                                placeholder="Contoh: BK-PROG-X  001">
                             @error('kode_buku')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -231,7 +227,7 @@
         </div>
     </div>
 </div>
-@endsection
+
 
 @push('scripts')
 <script>
@@ -250,3 +246,4 @@
     });
 </script>
 @endpush
+</x-app-layout>
