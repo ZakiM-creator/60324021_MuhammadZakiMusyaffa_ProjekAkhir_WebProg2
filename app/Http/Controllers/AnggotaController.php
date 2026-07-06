@@ -14,14 +14,25 @@ class AnggotaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Jika ada clear_filter, hapus session dan load semua
+        if ($request->has('clear_filter')) {
+            session()->forget('filter_anggota');
+            return redirect()->route('anggota.index');
+        }
+
+        // Restore filter preferences from session if exist
+        if (session()->has('filter_anggota') && empty($request->all())) {
+            return redirect()->route('anggota.search', session('filter_anggota'));
+        }
+
         // Ambil semua data anggota
         $anggotas = Anggota::orderBy('created_at', 'desc')->get();
 
         // Statistik
         $totalAnggota = Anggota::count();
-        $anggotaAktif = Anggota::aktif()->count();
+        $anggotaAktif = Anggota::where('status', 'Aktif')->count();
         $anggotaNonaktif = Anggota::where('status', 'Nonaktif')->count();
 
         return view('anggota.index', compact('anggotas', 'totalAnggota', 'anggotaAktif', 'anggotaNonaktif'));
@@ -56,10 +67,21 @@ class AnggotaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $anggota = Anggota::findOrFail($id);
-        return view('anggota.show', compact('anggota'));
+
+        $query = $anggota->transaksis()->with('buku')->latest();
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $transaksis = $query->get();
+        $totalPinjam = $anggota->transaksis()->count();
+        $totalDenda = $anggota->transaksis()->sum('denda');
+
+        return view('anggota.show', compact('anggota', 'transaksis', 'totalPinjam', 'totalDenda'));
     }
 
     /**
@@ -148,6 +170,21 @@ class AnggotaController extends Controller
             $query->where('pekerjaan', $request->pekerjaan);
         }
         
+        if ($request->min_umur) {
+            $max_date = now()->subYears($request->min_umur)->format('Y-m-d');
+            $query->where('tanggal_lahir', '<=', $max_date);
+        }
+
+        if ($request->max_umur) {
+            // max umur 25 means they were born at least 25 years ago
+            $min_date = now()->subYears($request->max_umur + 1)->format('Y-m-d');
+            $query->where('tanggal_lahir', '>', $min_date);
+        }
+
+        if ($request->anyFilled(['keyword', 'jenis_kelamin', 'status', 'pekerjaan', 'min_umur', 'max_umur'])) {
+            session(['filter_anggota' => $request->all()]);
+        }
+
         $anggotas = $query->latest()->get();
         
         // Statistics

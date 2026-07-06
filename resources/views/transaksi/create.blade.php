@@ -33,6 +33,15 @@
                         <small class="text-muted">Hanya anggota dengan status Aktif yang dapat meminjam</small>
                     </div>
 
+                    {{-- Scanner Simulation (Bonus) --}}
+                    <div class="mb-3 p-3 bg-light border rounded border-primary">
+                        <label for="scanner_input" class="form-label fw-bold text-primary">
+                            <i class="bi bi-upc-scan"></i> Scanner Barcode Buku
+                        </label>
+                        <input type="text" id="scanner_input" class="form-control" placeholder="Scan barcode di sini (Tekan Enter)..." autofocus>
+                        <small class="text-muted">Simulasi: Ketik ID Buku (misal: 1, 2) lalu tekan Enter</small>
+                    </div>
+
                     {{-- Pilih Buku --}}
                     <div class="mb-3">
                         <label for="buku_id" class="form-label">
@@ -110,4 +119,47 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.getElementById('scanner_input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            let val = this.value.replace('BK-', '').replace(/^0+/, ''); // Remove BK- and leading zeros
+            let select = document.getElementById('buku_id');
+            let options = select.options;
+            let found = false;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value == val) {
+                    select.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Buku berhasil di-scan!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Buku tidak ditemukan!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+            this.value = ''; // clear input
+        }
+    });
+</script>
+@endpush
 </x-app-layout>

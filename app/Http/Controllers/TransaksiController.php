@@ -8,19 +8,49 @@ use App\Models\Buku;
 use App\Models\Anggota;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transaksis = Transaksi::with(['anggota', 'buku'])
-            ->latest()
-            ->get();
+        if ($request->has('clear_filter')) {
+            session()->forget('filter_transaksi');
+            return redirect()->route('transaksi.index');
+        }
 
-        return view('transaksi.index', compact('transaksis'));
+        if ($request->anyFilled(['status', 'anggota_id', 'buku_id', 'tgl_mulai', 'tgl_selesai'])) {
+            session(['filter_transaksi' => $request->all()]);
+        } elseif (session()->has('filter_transaksi') && empty($request->all())) {
+            return redirect()->route('transaksi.index', session('filter_transaksi'));
+        }
+
+        $query = Transaksi::with(['anggota', 'buku']);
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+        if ($request->anggota_id) {
+            $query->where('anggota_id', $request->anggota_id);
+        }
+        if ($request->buku_id) {
+            $query->where('buku_id', $request->buku_id);
+        }
+        if ($request->tgl_mulai) {
+            $query->where('tanggal_pinjam', '>=', $request->tgl_mulai);
+        }
+        if ($request->tgl_selesai) {
+            $query->where('tanggal_pinjam', '<=', $request->tgl_selesai);
+        }
+
+        $transaksis = $query->latest()->get();
+        $anggotas = Anggota::orderBy('nama')->get();
+        $bukus = Buku::orderBy('judul')->get();
+
+        return view('transaksi.index', compact('transaksis', 'anggotas', 'bukus'));
     }
 
     /**
@@ -55,7 +85,30 @@ class TransaksiController extends Controller
 
         try {
             DB::transaction(function () use ($request) {
-                // 1. Check stok buku
+                // 1. Cek status anggota (harus Aktif)
+                $anggota = Anggota::findOrFail($request->anggota_id);
+                if ($anggota->status !== 'Aktif') {
+                    throw new \Exception('Anggota tersebut tidak aktif!');
+                }
+
+                // 2. Cek apakah anggota sedang meminjam buku ini (belum dikembalikan)
+                $existingTransaction = Transaksi::where('anggota_id', $request->anggota_id)
+                    ->where('buku_id', $request->buku_id)
+                    ->where('status', 'Dipinjam')
+                    ->first();
+                if ($existingTransaction) {
+                    throw new \Exception('Anggota ini sedang meminjam buku ini dan belum mengembalikannya!');
+                }
+
+                // 3. Batasi peminjaman aktif maksimal 3 buku per anggota
+                $borrowedCount = Transaksi::where('anggota_id', $request->anggota_id)
+                    ->where('status', 'Dipinjam')
+                    ->count();
+                if ($borrowedCount >= 3) {
+                    throw new \Exception('Anggota telah mencapai batas maksimal peminjaman (maksimal 3 buku)!');
+                }
+
+                // 4. Check stok buku
                 $buku = Buku::findOrFail($request->buku_id);
                 if ($buku->stok <= 0) {
                     throw new \Exception('Stok buku habis!');
@@ -109,7 +162,11 @@ class TransaksiController extends Controller
             DB::transaction(function () use ($id) {
                 $transaksi = Transaksi::findOrFail($id);
 
-                // 1. Update transaksi
+                // Cek apakah sudah dikembalikan
+                if ($transaksi->status === 'Dikembalikan') {
+                    throw new \Exception('Buku sudah dikembalikan sebelumnya.');
+                }
+
                 $tanggalDikembalikan = now();
                 $denda = $this->hitungDenda($transaksi, $tanggalDikembalikan);
 
@@ -119,17 +176,16 @@ class TransaksiController extends Controller
                     'denda' => $denda,
                 ]);
 
-                // 2. Update stok buku (tambah 1)
                 $transaksi->buku->increment('stok');
             });
 
-            return redirect()->route('transaksi.show', $id)
-                ->with('success', 'Buku berhasil dikembalikan!');
+            return redirect()->route('transaksi.show', $id) ->with('success', 'Buku berhasil dikembalikan!');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mengembalikan buku: ' . $e->getMessage());
+            return redirect()->back() ->with('error', 'Gagal mengembalikan buku: ' . $e->getMessage());
         }
     }
+
+
 
     /**
      * Generate kode transaksi otomatis.
@@ -202,5 +258,50 @@ class TransaksiController extends Controller
             'totalTransaksi',
             'totalDenda'
         ));
+    }
+
+    /**
+     * Export laporan transaksi ke PDF murni server-side.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Transaksi::with(['buku', 'anggota']);
+
+        // Filter Tanggal Pinjam
+        if ($request->filled('tgl_mulai') && $request->filled('tgl_selesai')) {
+            $query->whereBetween('tanggal_pinjam', [$request->tgl_mulai, $request->tgl_selesai]);
+        } elseif ($request->filled('tgl_mulai')) {
+            $query->where('tanggal_pinjam', '>=', $request->tgl_mulai);
+        } elseif ($request->filled('tgl_selesai')) {
+            $query->where('tanggal_pinjam', '<=', $request->tgl_selesai);
+        }
+
+        // Filter Status
+        if ($request->filled('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        // Filter Anggota
+        if ($request->filled('anggota_id')) {
+            $query->where('anggota_id', $request->anggota_id);
+        }
+
+        $transaksis = $query->latest()->get();
+
+        $totalTransaksi = $transaksis->count();
+        $totalDenda = $transaksis->sum('denda');
+        $totalDipinjam = $transaksis->where('status', 'Dipinjam')->count();
+        $totalDikembalikan = $transaksis->where('status', 'Dikembalikan')->count();
+
+        $pdf = Pdf::loadView('transaksi.pdf', compact(
+            'transaksis',
+            'totalTransaksi',
+            'totalDenda',
+            'totalDipinjam',
+            'totalDikembalikan'
+        ));
+
+        // Format nama file: laporan_transaksi_20240101_101500.pdf
+        return $pdf->download('laporan_transaksi_' . date('Ymd_His') . '.pdf');
     }
 }

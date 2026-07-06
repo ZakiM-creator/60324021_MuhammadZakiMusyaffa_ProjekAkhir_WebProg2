@@ -6,7 +6,7 @@
     </h1>
     <div class="d-flex gap-2">
         <a href="{{ route('anggota.export') }}" class="btn btn-success">
-            <i class="bi bi-file-excel"></i> Export Excel
+            <i class="bi bi-download"></i> Export Excel
         </a>
         <a href="{{ route('anggota.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Tambah Anggota
@@ -20,40 +20,53 @@
         <form action="{{ route('anggota.search') }}" method="GET">
             <div class="row g-3">
                 <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Pencarian</label>
                     <input type="text" name="keyword" class="form-control" 
                            value="{{ request('keyword') }}"
-                           placeholder="Cari nama/email/telepon">
+                           placeholder="Nama/email/telepon...">
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Jenis Kelamin</label>
                     <select name="jenis_kelamin" class="form-select">
-                        <option value="">Semua Jenis Kelamin</option>
+                        <option value="">Semua</option>
                         <option value="Laki-laki" {{ request('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                         <option value="Perempuan" {{ request('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Status</label>
                     <select name="status" class="form-select">
-                        <option value="">Semua Status</option>
+                        <option value="">Semua</option>
                         <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="Nonaktif" {{ request('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Pekerjaan</label>
                     <select name="pekerjaan" class="form-select">
-                        <option value="">Semua Pekerjaan</option>
+                        <option value="">Semua</option>
                         <option value="Mahasiswa" {{ request('pekerjaan') == 'Mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
                         <option value="Pegawai" {{ request('pekerjaan') == 'Pegawai' ? 'selected' : '' }}>Pegawai</option>
                         <option value="Wiraswasta" {{ request('pekerjaan') == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i> Cari
-                    </button>
-                    <a href="{{ route('anggota.index') }}" class="btn btn-secondary">
-                        <i class="bi bi-x"></i> Reset
-                    </a>
+                    <label class="form-label text-muted small mb-1">Rentang Umur</label>
+                    <div class="input-group">
+                        <input type="number" name="min_umur" class="form-control" placeholder="Min" value="{{ request('min_umur') }}">
+                        <span class="input-group-text">-</span>
+                        <input type="number" name="max_umur" class="form-control" placeholder="Max" value="{{ request('max_umur') }}">
+                    </div>
                 </div>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <a href="{{ route('anggota.index', ['clear_filter' => 1]) }}" class="btn btn-secondary">
+                    <i class="bi bi-x"></i> Reset
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Terapkan Filter
+                </button>
             </div>
         </form>
     </div>

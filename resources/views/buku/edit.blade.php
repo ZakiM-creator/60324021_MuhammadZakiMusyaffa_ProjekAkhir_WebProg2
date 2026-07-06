@@ -48,21 +48,21 @@
                     <div class="row">
                         {{-- Kategori --}}
                         <div class="col-md-4 mb-3">
-                            <label for="kategori" class="form-label">
+                            <label for="kategori_id" class="form-label">
                                 Kategori <span class="text-danger">*</span>
                             </label>
-                            <select name="kategori"
-                                id="kategori"
-                                class="form-select @error('kategori') is-invalid @enderror">
+                            <select name="kategori_id"
+                                id="kategori_id"
+                                class="form-select @error('kategori_id') is-invalid @enderror">
                                 <option value="">-- Pilih Kategori --</option>
-                                @foreach(['Programming', 'Database', 'Web Design', 'Networking', 'Data Science'] as $kat)
-                                <option value="{{ $kat }}"
-                                    {{ old('kategori', $buku->kategori) == $kat ? 'selected' : '' }}>
-                                    {{ $kat }}
+                                @foreach($kategoris as $kat)
+                                <option value="{{ $kat->id }}"
+                                    {{ old('kategori_id', $buku->kategori_id) == $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategori }}
                                 </option>
                                 @endforeach
                             </select>
-                            @error('kategori')
+                            @error('kategori_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

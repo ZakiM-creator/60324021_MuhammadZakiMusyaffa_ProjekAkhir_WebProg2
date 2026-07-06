@@ -49,30 +49,20 @@
                     <div class="row">
                         {{-- Kategori --}}
                         <div class="col-md-4 mb-3">
-                            <label for="kategori" class="form-label">
+                            <label for="kategori_id" class="form-label">
                                 Kategori <span class="text-danger">*</span>
                             </label>
-                            <select name="kategori"
-                                id="kategori"
-                                class="form-select @error('kategori') is-invalid @enderror">
+                            <select name="kategori_id"
+                                id="kategori_id"
+                                class="form-select @error('kategori_id') is-invalid @enderror">
                                 <option value="">-- Pilih Kategori --</option>
-                                <option value="Programming" {{ old('kategori') == 'Programming' ? 'selected' : '' }}>
-                                    Programming
-                                </option>
-                                <option value="Database" {{ old('kategori') == 'Database' ? 'selected' : '' }}>
-                                    Database
-                                </option>
-                                <option value="Web Design" {{ old('kategori') == 'Web Design' ? 'selected' : '' }}>
-                                    Web Design
-                                </option>
-                                <option value="Networking" {{ old('kategori') == 'Networking' ? 'selected' : '' }}>
-                                    Networking
-                                </option>
-                                <option value="Data Science" {{ old('kategori') == 'Data Science' ? 'selected' : '' }}>
-                                    Data Science
-                                </option>
+                                @foreach($kategoris as $kategori)
+                                    <option value="{{ $kategori->id }}" {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                        {{ $kategori->nama_kategori }}
+                                    </option>
+                                @endforeach
                             </select>
-                            @error('kategori')
+                            @error('kategori_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

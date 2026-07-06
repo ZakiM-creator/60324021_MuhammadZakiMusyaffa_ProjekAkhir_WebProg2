@@ -22,11 +22,22 @@
             </div>
             <div class="card-body">
                 <div class="text-center mb-4">
-                    @if ($anggota->jenis_kelamin == 'Laki-laki')
-                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
-                    @else
-                    <i class="bi bi-person-circle text-danger" style="font-size: 5rem;"></i>
-                    @endif
+                    <div class="d-flex justify-content-center gap-4 align-items-center mb-3">
+                        @if ($anggota->jenis_kelamin == 'Laki-laki')
+                        <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                        @else
+                        <i class="bi bi-person-circle text-danger" style="font-size: 5rem;"></i>
+                        @endif
+                        
+                        {{-- QR Code Simulation (Bonus) --}}
+                        <div class="text-center">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ $anggota->kode_anggota }}" 
+                                 alt="QR {{ $anggota->kode_anggota }}" 
+                                 class="img-thumbnail p-1 bg-white">
+                            <div class="small text-muted mt-1" style="font-size: 0.7rem;"><i class="bi bi-qr-code-scan"></i> Scan Me</div>
+                        </div>
+                    </div>
+                    
                     <h3 class="mt-2">{{ $anggota->nama }}</h3>
                     @if ($anggota->status == 'Aktif')
                     <span class="badge bg-success">
@@ -131,4 +142,71 @@
         </div>
     </div>
 </div>
+
+{{-- Riwayat Peminjaman Anggota --}}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history text-primary"></i> Riwayat Peminjaman</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary me-2 p-2">Total: {{ $totalPinjam }}</span>
+                    <span class="badge bg-danger p-2">Denda: Rp {{ number_format($totalDenda, 0, ',', '.') }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('anggota.show', $anggota->id) }}" method="GET" class="mb-3 d-flex gap-2 w-50">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Semua Status</option>
+                        <option value="Dipinjam" {{ request('status') === 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="Dikembalikan" {{ request('status') === 'Dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                    @if(request('status'))
+                        <a href="{{ route('anggota.show', $anggota->id) }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    @endif
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Buku</th>
+                                <th>Tgl Pinjam</th>
+                                <th>Tgl Kembali</th>
+                                <th>Status</th>
+                                <th>Denda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($transaksis as $trx)
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ $trx->buku->judul }}</div>
+                                        <small class="text-muted">{{ $trx->kode_transaksi }}</small>
+                                    </td>
+                                    <td>{{ $trx->tanggal_pinjam->format('d/m/Y') }}</td>
+                                    <td>{{ $trx->tanggal_kembali->format('d/m/Y') }}</td>
+                                    <td>
+                                        @if($trx->status === 'Dipinjam')
+                                            <span class="badge bg-warning text-dark">Dipinjam</span>
+                                        @else
+                                            <span class="badge bg-success">Dikembalikan</span>
+                                        @endif
+                                    </td>
+                                    <td>Rp {{ number_format($trx->denda, 0, ',', '.') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-3 text-muted">Belum ada riwayat peminjaman.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </x-app-layout>

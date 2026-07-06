@@ -6,7 +6,7 @@
     </h1>
     <div>
         <a href="{{ route('buku.export') }}" class="btn btn-success me-2">
-            <i class="bi bi-download"></i> Export CSV
+            <i class="bi bi-download"></i> Export Excel
         </a>
         <a href="{{ route('buku.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Tambah Buku
@@ -95,14 +95,14 @@
 
                 {{-- Filter Kategori --}}
                 <div class="col-md-6">
-                    <label for="kategori" class="form-label">
+                    <label for="kategori_id" class="form-label">
                         <i class="bi bi-tag"></i> Kategori
                     </label>
-                    <select class="form-select" id="kategori" name="kategori">
+                    <select class="form-select" id="kategori_id" name="kategori_id">
                         <option value="">-- Semua Kategori --</option>
                         @foreach($kategoris ?? [] as $kat)
-                        <option value="{{ $kat }}" {{ request('kategori') == $kat ? 'selected' : '' }}>
-                            {{ $kat }}
+                        <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
                         </option>
                         @endforeach
                     </select>
@@ -129,40 +129,33 @@
                         <i class="bi bi-box-seam"></i> Ketersediaan
                     </label>
                     <select class="form-select" id="ketersediaan" name="ketersediaan">
-                        <option value="">-- Semua --</option>
-                        <option value="tersedia" {{ request('ketersediaan') == 'tersedia' ? 'selected' : '' }}>
-                            Tersedia
-                        </option>
-                        <option value="habis" {{ request('ketersediaan') == 'habis' ? 'selected' : '' }}>
-                            Habis
-                        </option>
+                        <option value="">-- Semua Status --</option>
+                        <option value="1" {{ request('ketersediaan') == '1' ? 'selected' : '' }}>Tersedia (Stok > 0)</option>
+                        <option value="0" {{ request('ketersediaan') == '0' ? 'selected' : '' }}>Habis (Stok = 0)</option>
                     </select>
                 </div>
 
-                {{-- Tombol Action --}}
-                <div class="col-md-4">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> Cari
-                    </button>
+                {{-- Filter Harga --}}
+                <div class="col-md-6 mt-3">
+                    <label class="form-label">
+                        <i class="bi bi-cash"></i> Range Harga (Rp)
+                    </label>
+                    <div class="input-group">
+                        <input type="number" name="min_harga" class="form-control" placeholder="Min" value="{{ request('min_harga') }}">
+                        <span class="input-group-text">-</span>
+                        <input type="number" name="max_harga" class="form-control" placeholder="Max" value="{{ request('max_harga') }}">
+                    </div>
                 </div>
 
             </div>
 
-            {{-- Tombol Reset --}}
-            <div class="row mt-3">
-                <div class="col-12">
-                    <a href="{{ route('buku.index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-arrow-clockwise"></i> Reset Filter
-                    </a>
-
-                    {{-- Info Filter Aktif --}}
-                    @if(request()->hasAny(['keyword', 'kategori', 'tahun', 'ketersediaan']))
-                    <span class="badge bg-info ms-2">
-                        <i class="bi bi-funnel-fill"></i> Filter Aktif
-                    </span>
-                    @endif
-                </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ route('buku.index', ['clear_filter' => 1]) }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset Filter
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Terapkan Pencarian
+                </button>
             </div>
         </form>
     </div>
@@ -225,24 +218,14 @@
             <i class="bi bi-funnel"></i> Filter Kategori:
         </h6>
         <div class="btn-group" role="group">
-            <a href="{{ route('buku.index') }}" class="btn btn-sm {{ !isset($kategori) ? 'btn-primary' : 'btn-outline-primary' }}">
+            <a href="{{ route('buku.index') }}" class="btn btn-sm {{ !request('kategori_id') && !isset($kategori_id) ? 'btn-primary' : 'btn-outline-primary' }}">
                 Semua
             </a>
-            <a href="{{ route('buku.kategori', 'Programming') }}" class="btn btn-sm {{ isset($kategori) && $kategori == 'Programming' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Programming
+            @foreach(\App\Models\Kategori::all() as $kat)
+            <a href="{{ route('buku.kategori', $kat->id) }}" class="btn btn-sm {{ (request('kategori_id') == $kat->id || (isset($kategori_id) && $kategori_id == $kat->id)) ? 'btn-' . $kat->warna : 'btn-outline-' . $kat->warna }}">
+                {{ $kat->nama_kategori }}
             </a>
-            <a href="{{ route('buku.kategori', 'Database') }}" class="btn btn-sm {{ isset($kategori) && $kategori == 'Database' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Database
-            </a>
-            <a href="{{ route('buku.kategori', 'Web Design') }}" class="btn btn-sm {{ isset($kategori) && $kategori == 'Web Design' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Web Design
-            </a>
-            <a href="{{ route('buku.kategori', 'Networking') }}" class="btn btn-sm {{ isset($kategori) && $kategori == 'Networking' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Networking
-            </a>
-            <a href="{{ route('buku.kategori', 'Data Science') }}" class="btn btn-sm {{ isset($kategori) && $kategori == 'Data Science' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Data Science
-            </a>
+            @endforeach
         </div>
     </div>
 </div>
@@ -287,10 +270,17 @@
             </div>
 
             <div class="col-md-2 text-center">
-                <i class="bi bi-book text-primary" style="font-size: 4rem;"></i>
-                <div class="mt-2">
-                    <span class="badge bg-{{ $buku->kategori == 'Programming' ? 'primary' : ($buku->kategori == 'Database' ? 'success' : ($buku->kategori == 'Web Design' ? 'info' : ($buku->kategori == 'Networking' ? 'warning' : 'danger'))) }}">
-                        {{ $buku->kategori }}
+                <i class="bi bi-book text-primary mb-2" style="font-size: 3rem; display:block;"></i>
+                
+                {{-- Barcode Simulation (Bonus) --}}
+                <img src="https://barcode.tec-it.com/barcode.ashx?data={{ $buku->isbn ?? 'BK-'.str_pad($buku->id, 4, '0', STR_PAD_LEFT) }}&code=Code128&dpi=72" 
+                     alt="Barcode {{ $buku->judul }}" 
+                     class="img-fluid mb-2 border p-1 bg-white rounded"
+                     style="max-height: 50px;">
+                
+                <div class="mt-1">
+                    <span class="badge bg-{{ $buku->kategoriRel ? $buku->kategoriRel->warna : 'secondary' }}">
+                        {{ $buku->kategoriRel ? $buku->kategoriRel->nama_kategori : '-' }}
                     </span>
                 </div>
             </div>

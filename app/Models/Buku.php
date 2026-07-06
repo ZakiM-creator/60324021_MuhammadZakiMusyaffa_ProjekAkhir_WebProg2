@@ -25,7 +25,7 @@ class Buku extends Model
     protected $fillable = [
         'kode_buku',
         'judul',
-        'kategori',
+        'kategori_id',
         'pengarang',
         'penerbit',
         'tahun_terbit',
@@ -45,6 +45,7 @@ class Buku extends Model
         'tahun_terbit' => 'integer',
         'harga' => 'decimal:2',
         'stok' => 'integer',
+        'kategori_id' => 'integer',
     ];
 
     /**
@@ -97,14 +98,19 @@ class Buku extends Model
     /**
      * Scope untuk filter berdasarkan kategori.
      */
-    public function scopeKategori($query, $kategori)
+    public function scopeKategori($query, $kategori_id)
     {
-        return $query->where('kategori', $kategori);
+        return $query->where('kategori_id', $kategori_id);
     }
 
     public function scopeStokMenipis($query)
     {
         return $query->where('stok', '<', 5);
+    }
+
+    public function kategoriRel()
+    {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 
     public function scopeHargaRange($query, $min, $max)

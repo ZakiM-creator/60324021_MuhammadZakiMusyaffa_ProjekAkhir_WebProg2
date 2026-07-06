@@ -64,9 +64,9 @@
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-end mb-3">
-            <button id="btn-pdf-export" class="btn btn-danger">
+            <a href="{{ route('transaksi.export.pdf', request()->all()) }}" class="btn btn-danger">
                 <i class="bi bi-file-pdf me-1"></i> Export PDF
-            </button>
+            </a>
         </div>
 
         <div class="card shadow-sm border-0">
@@ -159,27 +159,5 @@
     </div>
 </div>
 
-@push('scripts')
-{{-- Load html2pdf.js dari CDN --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-    document.getElementById('btn-pdf-export').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const element = document.getElementById('laporan-cetak');
-        
-        // Konfigurasi ekspor PDF
-        const opt = {
-            margin:       10,
-            filename:     'laporan_transaksi_{{ date("Ymd_His") }}.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        
-        // Eksekusi download PDF
-        html2pdf().set(opt).from(element).save();
-    });
-</script>
-@endpush
+
 </x-app-layout>

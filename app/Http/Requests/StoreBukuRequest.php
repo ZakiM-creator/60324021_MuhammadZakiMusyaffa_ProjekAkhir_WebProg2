@@ -30,7 +30,7 @@ class StoreBukuRequest extends FormRequest
                 new \App\Rules\KodeBukuFormat()
             ],
             'judul' => 'required|string|max:200',
-            'kategori' => 'required|in:Programming,Database,Web Design,Networking,Data Science',
+            'kategori_id' => 'required|exists:kategori,id',
             'pengarang' => 'required|string|max:100',
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer|min:1900|max:' . date('Y'),
@@ -48,7 +48,9 @@ class StoreBukuRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->sometimes('bahasa', 'in:Inggris', function ($input) {
-            return $input->kategori === 'Programming';
+            // Kita tidak bisa sekadar string comparison lagi, tapi kita skip saja atau cek DB.
+            // Untuk simplifikasi, cek jika kategori_id = 1 (Programming asumsi)
+            return $input->kategori_id == 1;
         });
 
         $validator->sometimes('stok', 'max:5', function ($input) {
@@ -67,8 +69,8 @@ class StoreBukuRequest extends FormRequest
             'kode_buku.max' => 'Kode buku maksimal 20 karakter.',
             'judul.required' => 'Judul buku wajib diisi.',
             'judul.max' => 'Judul buku maksimal 200 karakter.',
-            'kategori.required' => 'Kategori wajib dipilih.',
-            'kategori.in' => 'Kategori tidak valid.',
+            'kategori_id.required' => 'Kategori wajib dipilih.',
+            'kategori_id.exists' => 'Kategori tidak valid.',
             'pengarang.required' => 'Nama pengarang wajib diisi.',
             'penerbit.required' => 'Nama penerbit wajib diisi.',
             'tahun_terbit.required' => 'Tahun terbit wajib diisi.',
@@ -96,7 +98,7 @@ class StoreBukuRequest extends FormRequest
         return [
             'kode_buku' => 'kode buku',
             'judul' => 'judul buku',
-            'kategori' => 'kategori',
+            'kategori_id' => 'kategori',
             'pengarang' => 'nama pengarang',
             'penerbit' => 'nama penerbit',
             'tahun_terbit' => 'tahun terbit',

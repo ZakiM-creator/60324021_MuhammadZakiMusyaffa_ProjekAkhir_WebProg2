@@ -6,14 +6,28 @@ use App\Http\Requests\StoreBukuRequest;
 use App\Models\Buku;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateBukuRequest;
+use App\Models\Kategori;
+use App\Exports\BukuExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BukuController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Jika ada clear_filter, hapus session dan load semua
+        if ($request->has('clear_filter')) {
+            session()->forget('filter_buku');
+            return redirect()->route('buku.index');
+        }
+
+        // Restore filter preferences from session if exist
+        if (session()->has('filter_buku') && empty($request->all())) {
+            return redirect()->route('buku.search', session('filter_buku'));
+        }
+
         // Ambil semua data buku dari database
         $bukus = Buku::latest()->get();
 
@@ -22,18 +36,12 @@ class BukuController extends Controller
         $bukuTersedia = Buku::where('stok', '>', 0)->count();
         $bukuHabis = Buku::where('stok', 0)->count();
 
-        // Data untuk dropdown (tambahan)
-        $kategoris = Buku::select('kategori')->distinct()->orderBy('kategori')->pluck('kategori');
+        // Data untuk dropdown
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
         $tahuns = Buku::select('tahun_terbit')->distinct()->orderBy('tahun_terbit', 'desc')->pluck('tahun_terbit');
 
-        // Return view dengan data
         return view('buku.index', compact(
-            'bukus',
-            'totalBuku',
-            'bukuTersedia',
-            'bukuHabis',
-            'kategoris',  // Tambahan
-            'tahuns'      // Tambahan
+            'bukus', 'totalBuku', 'bukuTersedia', 'bukuHabis', 'kategoris', 'tahuns'
         ));
     }
 
@@ -42,7 +50,8 @@ class BukuController extends Controller
      */
     public function create()
     {
-        return view('buku.create');
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
+        return view('buku.create', compact('kategoris'));
     }
 
     /**
@@ -83,7 +92,8 @@ class BukuController extends Controller
     public function edit(string $id)
     {
         $buku = Buku::findOrFail($id);
-        return view('buku.edit', compact('buku'));
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
+        return view('buku.edit', compact('buku', 'kategoris'));
     }
 
     /**
@@ -151,62 +161,32 @@ class BukuController extends Controller
     }
 
     /**
-     * Export data buku ke file CSV.
+     * Export data buku ke Excel.
      */
     public function export()
     {
-        $bukus = Buku::all();
-        
-        $filename = 'buku_' . date('Y-m-d_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-        
-        $callback = function() use ($bukus) {
-            $file = fopen('php://output', 'w');
-            
-            // Header CSV
-            fputcsv($file, [
-                'Kode Buku', 'Judul', 'Kategori', 'Pengarang', 
-                'Penerbit', 'Tahun', 'ISBN', 'Harga', 'Stok'
-            ]);
-            
-            // Data
-            foreach ($bukus as $buku) {
-                fputcsv($file, [
-                    $buku->kode_buku,
-                    $buku->judul,
-                    $buku->kategori,
-                    $buku->pengarang,
-                    $buku->penerbit,
-                    $buku->tahun_terbit,
-                    $buku->isbn,
-                    $buku->harga,
-                    $buku->stok,
-                ]);
-            }
-            
-            fclose($file);
-        };
-        
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(new BukuExport, 'buku_' . date('Y-m-d_His') . '.xlsx');
     }
 
-    public function filterKategori($kategori)
+    public function filterKategori($kategori_id)
     {
-        $bukus = Buku::where('kategori', $kategori)->latest()->get();
+        $bukus = Buku::where('kategori_id', $kategori_id)->latest()->get();
 
         $totalBuku = $bukus->count();
         $bukuTersedia = $bukus->where('stok', '>', 0)->count();
         $bukuHabis = $bukus->where('stok', 0)->count();
+
+        // Data untuk dropdown
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
+        $tahuns = Buku::select('tahun_terbit')->distinct()->orderBy('tahun_terbit', 'desc')->pluck('tahun_terbit');
 
         return view('buku.index', compact(
             'bukus',
             'totalBuku',
             'bukuTersedia',
             'bukuHabis',
-            'kategori'
+            'kategoris',
+            'tahuns'
         ));
     }
 
@@ -251,14 +231,12 @@ class BukuController extends Controller
         // ========== FILTER KATEGORI ==========
 
         // Ambil input kategori dari dropdown
-        $kategori = $request->input('kategori');
+        $kategori_id = $request->input('kategori_id');
 
         // Jika kategori dipilih (bukan "Semua")
-        if ($kategori) {
-            // Tambahkan kondisi WHERE kategori = value
-            $query->where('kategori', $kategori);
-
-            // Query SQL: WHERE kategori = 'Programming'
+        if ($kategori_id) {
+            // Tambahkan kondisi WHERE kategori_id = value
+            $query->where('kategori_id', $kategori_id);
         }
 
 
@@ -296,6 +274,24 @@ class BukuController extends Controller
         // Jika 'semua' atau tidak diisi, tidak ada filter stok
 
 
+        // ========== FILTER RANGE HARGA ==========
+        $min_harga = $request->input('min_harga');
+        $max_harga = $request->input('max_harga');
+        if ($min_harga) {
+            $query->where('harga', '>=', $min_harga);
+        }
+        if ($max_harga) {
+            $query->where('harga', '<=', $max_harga);
+        }
+
+        // Save preferences to session
+        if ($request->anyFilled(['keyword', 'kategori_id', 'tahun', 'ketersediaan', 'min_harga', 'max_harga'])) {
+            session(['filter_buku' => $request->all()]);
+        } elseif ($request->has('clear_filter')) {
+            session()->forget('filter_buku');
+            return redirect()->route('buku.index');
+        }
+
         // ========== EKSEKUSI QUERY ==========
 
         // latest() = orderBy('created_at', 'desc')
@@ -313,11 +309,8 @@ class BukuController extends Controller
 
         // ========== DATA UNTUK DROPDOWN ==========
 
-        // Ambil semua kategori unik dari database
-        $kategoris = Buku::select('kategori')
-            ->distinct()
-            ->orderBy('kategori')
-            ->pluck('kategori');
+        // Ambil semua kategori dari database
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         // Ambil semua tahun unik dari database
         $tahuns = Buku::select('tahun_terbit')
@@ -336,9 +329,11 @@ class BukuController extends Controller
             'kategoris',
             'tahuns',
             'keyword',      // Untuk mengisi kembali form
-            'kategori',     // Untuk mengisi kembali form
+            'kategori_id',  // Untuk mengisi kembali form
             'tahun',        // Untuk mengisi kembali form
-            'ketersediaan'  // Untuk mengisi kembali form
+            'ketersediaan', // Untuk mengisi kembali form
+            'min_harga',
+            'max_harga'
         ));
     }
 }

@@ -28,8 +28,8 @@
 
                 {{-- Badge Kategori --}}
                 <div class="mb-3">
-                    <span class="badge bg-{{ $buku->kategori == 'Programming' ? 'primary' : ($buku->kategori == 'Database' ? 'success' : ($buku->kategori == 'Web Design' ? 'info' : ($buku->kategori == 'Networking' ? 'warning' : 'danger'))) }} fs-6">
-                        <i class="bi bi-tag"></i> {{ $buku->kategori }}
+                    <span class="badge bg-{{ $buku->kategoriRel ? $buku->kategoriRel->warna : 'secondary' }} fs-6">
+                        <i class="bi bi-tag"></i> {{ $buku->kategoriRel ? $buku->kategoriRel->nama_kategori : '-' }}
                     </span>
                 </div>
 

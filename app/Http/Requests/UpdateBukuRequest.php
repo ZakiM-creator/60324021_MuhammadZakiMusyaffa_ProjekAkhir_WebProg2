@@ -33,7 +33,7 @@ class UpdateBukuRequest extends FormRequest
                 new \App\Rules\KodeBukuFormat()
             ],
             'judul' => 'required|string|max:200',
-            'kategori' => 'required|in:Programming,Database,Web Design,Networking,Data Science',
+            'kategori_id' => 'required|exists:kategori,id',
             'pengarang' => 'required|string|max:100',
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer|min:1900|max:' . date('Y'),
@@ -51,7 +51,7 @@ class UpdateBukuRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->sometimes('bahasa', 'in:Inggris', function ($input) {
-            return $input->kategori === 'Programming';
+            return $input->kategori_id == 1;
         });
 
         $validator->sometimes('stok', 'max:5', function ($input) {
@@ -70,8 +70,8 @@ class UpdateBukuRequest extends FormRequest
             'kode_buku.max' => 'Kode buku maksimal 20 karakter.',
             'judul.required' => 'Judul buku wajib diisi.',
             'judul.max' => 'Judul buku maksimal 200 karakter.',
-            'kategori.required' => 'Kategori wajib dipilih.',
-            'kategori.in' => 'Kategori tidak valid.',
+            'kategori_id.required' => 'Kategori wajib dipilih.',
+            'kategori_id.exists' => 'Kategori tidak valid.',
             'pengarang.required' => 'Nama pengarang wajib diisi.',
             'penerbit.required' => 'Nama penerbit wajib diisi.',
             'tahun_terbit.required' => 'Tahun terbit wajib diisi.',

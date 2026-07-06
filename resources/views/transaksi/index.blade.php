@@ -37,6 +37,58 @@
     </div>
 </div>
 
+{{-- Advanced Search & Filter --}}
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('transaksi.index') }}" method="GET">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Tanggal Pinjam (Dari)</label>
+                    <input type="date" name="tgl_mulai" class="form-control" value="{{ request('tgl_mulai') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Tanggal Pinjam (Sampai)</label>
+                    <input type="date" name="tgl_selesai" class="form-control" value="{{ request('tgl_selesai') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Semua</option>
+                        <option value="Dipinjam" {{ request('status') == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="Dikembalikan" {{ request('status') == 'Dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Anggota</label>
+                    <select name="anggota_id" class="form-select">
+                        <option value="">Semua Anggota</option>
+                        @foreach($anggotas as $anggota)
+                            <option value="{{ $anggota->id }}" {{ request('anggota_id') == $anggota->id ? 'selected' : '' }}>{{ $anggota->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Buku</label>
+                    <select name="buku_id" class="form-select">
+                        <option value="">Semua Buku</option>
+                        @foreach($bukus as $buku)
+                            <option value="{{ $buku->id }}" {{ request('buku_id') == $buku->id ? 'selected' : '' }}>{{ $buku->judul }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <a href="{{ route('transaksi.index', ['clear_filter' => 1]) }}" class="btn btn-secondary">
+                    <i class="bi bi-x"></i> Reset
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Terapkan Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {{-- Tabel Transaksi --}}
 <div class="card">
     <div class="card-body">
