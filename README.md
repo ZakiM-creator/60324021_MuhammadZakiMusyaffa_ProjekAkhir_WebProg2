@@ -4,7 +4,7 @@
 ### Kelas: Pemrograman Website II (A)
 ---
 
-### Tugas 1: Fitur Pengembalian Buku
+<!-- ### Tugas 1: Fitur Pengembalian Buku
 ![tgs1](ss14/transaksiTgs1.jpeg)
 ![tgs1_1](ss14/detail_transaksiTgs1_1.jpeg)
 ---
@@ -15,5 +15,5 @@
 
 ### Tugas 3: Export Buku ke CSV 
 ![tgs3](ss14/dasboardTgs3.jpeg)
-> Source Code: [PDF](ss14/laporan_transaksi_20260701_040746.pdf)
+> Source Code: [PDF](ss14/laporan_transaksi_20260701_040746.pdf) -->
 
