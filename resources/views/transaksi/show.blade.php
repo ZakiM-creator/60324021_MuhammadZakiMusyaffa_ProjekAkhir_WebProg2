@@ -1,11 +1,21 @@
+{{-- 
+============================================================
+FILE: transaksi/show.blade.php
+FUNGSI: Menampilkan detail transaksi peminjaman beserta informasi buku dan anggota
+============================================================
+--}}
+{{-- Memanggil layout utama dan menetapkan judul dinamis berdasarkan kode_transaksi --}}
 <x-app-layout theme="bootstrap" :title="'Detail Transaksi ' . $transaksi->kode_transaksi">
     <div class="row">
-        {{-- Breadcrumb --}}
+        {{-- BREADCRUMB (Navigasi Jejak) --}}
         <div class="col-12 mb-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
+                    {{-- Tautan ke Beranda --}}
                     <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                    {{-- Tautan ke daftar transaksi --}}
                     <li class="breadcrumb-item"><a href="{{ route('transaksi.index') }}">Transaksi</a></li>
+                    {{-- Posisi saat ini (kode transaksi) --}}
                     <li class="breadcrumb-item active">{{ $transaksi->kode_transaksi }}</li>
                 </ol>
             </nav>
@@ -14,10 +24,14 @@
 
 
 
+    {{-- PERINGATAN KETERLAMBATAN --}}
+    {{-- Cek jika status masih 'Dipinjam' dan hari ini melebihi tanggal kembali (tenggat) --}}
     @if($transaksi->status === 'Dipinjam' && now()->startOfDay()->greaterThan($transaksi->tanggal_kembali))
     @php
+    // Menghitung selisih hari antara tenggat pengembalian dan hari ini
     $keterlambatan = $transaksi->tanggal_kembali->diffInDays(now()->startOfDay());
     @endphp
+    {{-- Alert merah peringatan keterlambatan --}}
     <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
         <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>
         <div>
@@ -27,23 +41,28 @@
     @endif
 
     <div class="row">
-        {{-- Detail Transaksi --}}
+        {{-- KOLOM KIRI: DETAIL TRANSAKSI UTAMA --}}
         <div class="col-md-7 mb-4">
             <div class="card shadow-sm border-0 h-100">
+                {{-- Header Card Rincian Transaksi --}}
                 <div class="card-header bg-primary text-white py-3">
                     <h5 class="mb-0">
                         <i class="bi bi-info-circle me-1"></i> Rincian Transaksi
                     </h5>
                 </div>
                 <div class="card-body p-4">
+                    {{-- Tabel untuk menampilkan detail transaksi --}}
                     <table class="table table-borderless align-middle mb-0">
+                        {{-- Baris Kode Transaksi --}}
                         <tr>
                             <th width="35%">Kode Transaksi</th>
                             <td>: <strong class="text-primary fs-5">{{ $transaksi->kode_transaksi }}</strong></td>
                         </tr>
+                        {{-- Baris Status Transaksi --}}
                         <tr>
                             <th>Status</th>
                             <td>:
+                                {{-- Mengecek apakah status Pinjam/Dipinjam atau sudah Dikembalikan --}}
                                 @if(in_array($transaksi->status, ['Pinjam', 'Dipinjam']))
                                 <span class="badge bg-warning text-dark fs-6">
                                     <i class="bi bi-clock me-1"></i> Dipinjam
@@ -55,29 +74,37 @@
                                 @endif
                             </td>
                         </tr>
+                        {{-- Baris Tanggal Peminjaman --}}
                         <tr>
                             <th>Tanggal Pinjam</th>
                             <td>: {{ $transaksi->tanggal_pinjam->format('d F Y') }}</td>
                         </tr>
+                        {{-- Baris Batas Pengembalian (Tenggat) --}}
                         <tr>
                             <th>Batas Kembali</th>
                             <td>: {{ $transaksi->tanggal_kembali->format('d F Y') }}</td>
                         </tr>
+                        {{-- Baris Tanggal Aktual Pengembalian --}}
                         <tr>
                             <th>Tanggal Dikembalikan</th>
                             <td>:
+                                {{-- Jika sudah dikembalikan, tampilkan tanggal --}}
                                 @if($transaksi->tanggal_dikembalikan)
                                 {{ $transaksi->tanggal_dikembalikan->format('d F Y') }}
                                 @else
+                                {{-- Jika belum, tampilkan teks Belum dikembalikan --}}
                                 <span class="text-muted italic">Belum dikembalikan</span>
                                 @endif
                             </td>
                         </tr>
+                        {{-- Baris Denda --}}
                         <tr>
                             <th>Denda</th>
                             <td>:
+                                {{-- Jika denda sudah ada dan > 0 (biasanya sudah dikembalikan dan terkena denda) --}}
                                 @if($transaksi->denda > 0)
                                 <span class="text-danger fw-bold fs-5">Rp {{ number_format($transaksi->denda, 0, ',', '.') }}</span>
+                                {{-- Jika belum dikembalikan tetapi sudah terlambat, hitung estimasi denda --}}
                                 @elseif(in_array($transaksi->status, ['Pinjam', 'Dipinjam']) && now()->startOfDay()->greaterThan($transaksi->tanggal_kembali))
                                 @php
                                 $keterlambatan = $transaksi->tanggal_kembali->diffInDays(now()->startOfDay());
@@ -87,6 +114,7 @@
                                     Rp {{ number_format($estimasiDenda, 0, ',', '.') }}
                                     <small class="text-muted fw-normal">(Estimasi terlambat {{ $keterlambatan }} hari)</small>
                                 </span>
+                                {{-- Jika tidak terlambat dan tidak ada denda --}}
                                 @else
                                 <span class="text-success fw-bold">Rp 0 (Tidak ada denda)</span>
                                 @endif
@@ -96,21 +124,27 @@
 
                     <hr class="my-4">
 
+                    {{-- TOMBOL AKSI BAWAH --}}
                     <div class="d-flex gap-2">
+                        {{-- Tombol Kembali --}}
                         <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Kembali ke List
                         </a>
 
+                        {{-- Jika status masih Dipinjam, tampilkan tombol untuk mengembalikan --}}
                         @if($transaksi->status === 'Dipinjam')
                         <button type="button" class="btn btn-success" id="btn-kembalikan">
                             <i class="bi bi-arrow-return-left"></i> Kembalikan Buku
                         </button>
 
+                        {{-- Form tersembunyi yang akan disubmit oleh JavaScript saat konfirmasi kembalikan --}}
                         <form id="form-kembalikan" action="{{ route('transaksi.kembalikan', $transaksi->id) }}" method="POST" class="d-none">
                             @csrf
+                            {{-- Menggunakan method PATCH untuk update data --}}
                             @method('PATCH')
                         </form>
                         @else
+                        {{-- Jika status sudah dikembalikan, beri pesan informasi keterlambatan atau ketepatan waktu --}}
                         @if($transaksi->tanggal_dikembalikan <= $transaksi->tanggal_kembali)
                             <div class="alert alert-success">
                                 <i class="bi bi-check-circle"></i> Dikembalikan tepat waktu pada
@@ -124,10 +158,13 @@
                             @endif
                             @endif
 
+                            {{-- Push block untuk SweetAlert konfirmasi pengembalian buku --}}
                             @push('scripts')
                             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                             <script>
+                                // Event listener pada tombol kembalikan buku
                                 document.getElementById('btn-kembalikan')?.addEventListener('click', function() {
+                                    // Memunculkan dialog konfirmasi SweetAlert
                                     Swal.fire({
                                         title: 'Konfirmasi Pengembalian',
                                         text: 'Apakah Anda yakin ingin mengembalikan buku ini?',
@@ -137,6 +174,7 @@
                                         confirmButtonText: 'Ya, Kembalikan!',
                                         cancelButtonText: 'Batal'
                                     }).then((result) => {
+                                        // Jika dikonfirmasi, submit form tersembunyi
                                         if (result.isConfirmed) {
                                             document.getElementById('form-kembalikan').submit();
                                         }
@@ -149,10 +187,10 @@
             </div>
         </div>
 
-        {{-- Detail Anggota & Buku --}}
+        {{-- KOLOM KANAN: DETAIL ANGGOTA & BUKU --}}
         <div class="col-md-5 mb-4">
             <div class="row g-4">
-                {{-- Detail Anggota --}}
+                {{-- CARD: Detail Anggota --}}
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-info text-white">
@@ -162,6 +200,7 @@
                         </div>
                         <div class="card-body">
                             <table class="table table-sm table-borderless mb-0">
+                                {{-- Menampilkan informasi anggota dari relasi $transaksi->anggota --}}
                                 <tr>
                                     <th width="35%">Kode</th>
                                     <td>: {{ $transaksi->anggota->kode_anggota ?? '-' }}</td>
@@ -183,7 +222,7 @@
                     </div>
                 </div>
 
-                {{-- Detail Buku --}}
+                {{-- CARD: Detail Buku --}}
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-success text-white">
@@ -193,6 +232,7 @@
                         </div>
                         <div class="card-body">
                             <table class="table table-sm table-borderless mb-0">
+                                {{-- Menampilkan informasi buku dari relasi $transaksi->buku --}}
                                 <tr>
                                     <th width="35%">Kode</th>
                                     <td>: {{ $transaksi->buku->kode_buku ?? '-' }}</td>

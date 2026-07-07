@@ -17,7 +17,7 @@ FUNGSI: Potongan layout (partial) untuk bagian footer bawah halaman
                 <h5><i class="bi bi-book-fill text-primary"></i> Sistem Perpustakaan</h5>
                 {{-- Deskripsi teks abu-abu (text-muted) tanpa margin bawah (mb-0) --}}
                 <p class="text-muted mb-0">
-                    Sistem Manajemen Perpustakaan menggunakan Laravel 12
+                    Sistem Manajemen Perpustakaan menggunakan Laravel 13
                 </p>
             </div>
             

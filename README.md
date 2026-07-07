@@ -1,45 +1,65 @@
 # Sistem Perpustakaan Laravel
-
+ 
 ## Deskripsi
-Aplikasi manajemen perpustakaan berbasis web.
-
+Aplikasi manajemen perpustakaan berbasis web yang dibangun untuk memudahkan proses administrasi, pengelolaan buku, data anggota, serta memantau sirkulasi peminjaman dan pengembalian buku secara digital dan terstruktur.
+ 
 ## Fitur
+*(Catatan: Silakan ganti teks placeholder di bawah ini dengan gambar screenshot dari aplikasi yang berjalan)*
 
-### 1. Authentication
-*(Sistem Login, Register, Logout)*
+- **Authentication**
+  ![Screenshot Authentication](isi_dengan_path_atau_link_gambar_login_disini)
 
-![Screenshot Authentication](docs/login.jpeg)
-![Screenshot Authentication](docs/register.jpeg)
-![Screenshot Authentication](docs/logout.jpeg)
+- **CRUD Buku & Anggota**
+  ![Screenshot CRUD Buku](isi_dengan_path_atau_link_gambar_buku_disini)
+  ![Screenshot CRUD Anggota](isi_dengan_path_atau_link_gambar_anggota_disini)
 
+- **Transaksi Peminjaman & Pengembalian**
+  ![Screenshot Transaksi](isi_dengan_path_atau_link_gambar_transaksi_disini)
 
-
-### 2. CRUD Buku & Anggota
-*(Manajemen data Buku dan data Anggota perpustakaan)*
-
-![Screenshot CRUD Buku](docs/creatBuku.jpeg)
-![Screenshot CRUD Buku](docs/readBuku.jpeg)
-![Screenshot CRUD Buku](docs/updateBuku.jpeg)
-![Screenshot CRUD Buku](docs/deleteBuku.jpeg)
-
-![Screenshot CRUD Anggota](docs/readAnggota.jpeg)
-![Screenshot CRUD Buku](docs/deleteAnggota.jpeg)
-![Screenshot CRUD Buku](docs/editAnggota.jpeg)
-![Screenshot CRUD Buku](docs/createAnggota.jpeg)
-
-### 3. Transaksi Peminjaman & Pengembalian
-*(Proses peminjaman buku, pengembalian, dan perhitungan denda otomatis)*
-
-![Screenshot Transaksi Peminjaman](docs/createTrx.jpeg)
-![Screenshot Transaksi Peminjaman](docs/KembalikanBuku.jpeg)
-
-### 4. Dashboard & Reports
-*(Tampilan statistik, grafik, dan laporan PDF/Excel)*
-
-![Screenshot Dashboard](docs/dashboard.jpeg)
-![Screenshot Laporan](docs/laporan.jpeg)
-
+- **Dashboard & Reports**
+  ![Screenshot Dashboard](isi_dengan_path_atau_link_gambar_dashboard_disini)
+  ![Screenshot Reports](isi_dengan_path_atau_link_gambar_laporan_disini)
+ 
 ## Tech Stack
-- Laravel 13
-- PHP versi 8.3
-- breeze 2.4
+- Laravel 12.x
+- MySQL 8.x
+- Bootstrap 5.3
+ 
+## Instalasi
+Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi di komputer lokal (Localhost):
+
+1. **Clone repo**
+   ```bash
+   git clone <url_repository_anda>
+   cd Pertemuan15
+   ```
+2. **Install dependensi PHP (Composer)**
+   ```bash
+   composer install
+   ```
+3. **Install dependensi Frontend (NPM)**
+   ```bash
+   npm install
+   npm run build
+   ```
+4. **Siapkan Environment Variables**
+   ```bash
+   cp .env.example .env
+   ```
+   *(Penting: Buka file `.env` dan pastikan konfigurasi database sudah benar, misalnya `DB_DATABASE=perpustakaan_laravel`)*
+
+5. **Generate Application Key**
+   ```bash
+   php artisan key:generate
+   ```
+6. **Migrasi Database dan Seeding**
+   ```bash
+   php artisan migrate --seed
+   ```
+   *(Perintah ini akan membuat tabel di database MySQL sekaligus mengisi data awal/dummy untuk testing)*
+
+7. **Jalankan Server Lokal**
+   ```bash
+   php artisan serve
+   ```
+   *(Aplikasi sekarang dapat diakses melalui browser di alamat http://127.0.0.1:8000)*
