@@ -224,7 +224,7 @@
         </div>
         <div class="card-body">
             @php
-            $bukuSerupa = App\Models\Buku::where('kategori', $buku->kategori)
+            $bukuSerupa = App\Models\Buku::where('kategori_id', $buku->kategori_id)
             ->where('id', '!=', $buku->id)
             ->take(3)
             ->get();

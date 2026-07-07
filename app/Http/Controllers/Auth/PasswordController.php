@@ -1,5 +1,10 @@
 <?php
 
+// ============================================================
+// FILE: PasswordController.php
+// FUNGSI: Mengelola pembaruan password untuk user yang sedang login
+// ============================================================
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,19 +16,22 @@ use Illuminate\Validation\Rules\Password;
 class PasswordController extends Controller
 {
     /**
-     * Update the user's password.
+     * Memperbarui password user.
      */
     public function update(Request $request): RedirectResponse
     {
+        // Validasi input form update password
         $validated = $request->validateWithBag('updatePassword', [
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'current_password' => ['required', 'current_password'], // Harus cocok dgn password lama
+            'password' => ['required', Password::defaults(), 'confirmed'], // Password baru & konfirmasinya
         ]);
 
+        // Update password baru ke database (di-hash menggunakan bcrypt)
         $request->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
+        // Redirect kembali dengan pesan sukses
         return back()->with('status', 'password-updated');
     }
 }

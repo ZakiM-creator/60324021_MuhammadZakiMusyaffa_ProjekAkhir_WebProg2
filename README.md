@@ -1,19 +1,45 @@
-# Screenshoot Final Exam
-### Nama: Muhammad Zaki Musyaffa
-### NIM: 60324021
-### Kelas: Pemrograman Website II (A)
----
+# Sistem Perpustakaan Laravel
 
-<!-- ### Tugas 1: Fitur Pengembalian Buku
-![tgs1](ss14/transaksiTgs1.jpeg)
-![tgs1_1](ss14/detail_transaksiTgs1_1.jpeg)
----
+## Deskripsi
+Aplikasi manajemen perpustakaan berbasis web.
 
-### Tugas 2: Laporan Transaksi
-![tgs2](ss14/laporan_transaksiTgs2.jpeg)
----
+## Fitur
 
-### Tugas 3: Export Buku ke CSV 
-![tgs3](ss14/dasboardTgs3.jpeg)
-> Source Code: [PDF](ss14/laporan_transaksi_20260701_040746.pdf) -->
+### 1. Authentication
+*(Sistem Login, Register, Logout)*
 
+![Screenshot Authentication](docs/login.jpeg)
+![Screenshot Authentication](docs/register.jpeg)
+![Screenshot Authentication](docs/logout.jpeg)
+
+
+
+### 2. CRUD Buku & Anggota
+*(Manajemen data Buku dan data Anggota perpustakaan)*
+
+![Screenshot CRUD Buku](docs/creatBuku.jpeg)
+![Screenshot CRUD Buku](docs/readBuku.jpeg)
+![Screenshot CRUD Buku](docs/updateBuku.jpeg)
+![Screenshot CRUD Buku](docs/deleteBuku.jpeg)
+
+![Screenshot CRUD Anggota](docs/readAnggota.jpeg)
+![Screenshot CRUD Buku](docs/deleteAnggota.jpeg)
+![Screenshot CRUD Buku](docs/editAnggota.jpeg)
+![Screenshot CRUD Buku](docs/createAnggota.jpeg)
+
+### 3. Transaksi Peminjaman & Pengembalian
+*(Proses peminjaman buku, pengembalian, dan perhitungan denda otomatis)*
+
+![Screenshot Transaksi Peminjaman](docs/createTrx.jpeg)
+![Screenshot Transaksi Peminjaman](docs/KembalikanBuku.jpeg)
+
+### 4. Dashboard & Reports
+*(Tampilan statistik, grafik, dan laporan PDF/Excel)*
+
+![Screenshot Dashboard](docs/dashboard.jpeg)
+![Screenshot Laporan](docs/laporan.jpeg)
+
+## Tech Stack
+- Laravel 13
+- PHP versi 8.3
+- breeze 2.4
